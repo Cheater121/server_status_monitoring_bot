@@ -2,7 +2,7 @@ import asyncio
 import datetime
 
 from aiogram import Bot, Dispatcher
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.strategy import FSMStrategy
 from aiogram.types import Message
@@ -33,7 +33,7 @@ async def daily_check():
             await bot.send_message(settings.GROUP_CHAT_ID, f"{days_since_last_event} days without fall.")
 
 
-@dp.message(Command(commands=["start"]))
+@dp.message(Command(commands=["start"]), StateFilter(None))
 async def start_handler(message: Message, state: FSMContext):
     if message.from_user.id not in settings.ALLOWED_USERS:
         await message.answer("You are not allowed to start the bot.")
@@ -43,7 +43,7 @@ async def start_handler(message: Message, state: FSMContext):
     await state.set_data(data={"state": "started"})
     while True:
         data = await state.get_data()
-        if data["state"] == "waiting_for_start":
+        if not data.get("state"):
             break
         is_enabled = await ServiceStatusService().check_server_online()
         if not is_enabled:
@@ -59,8 +59,7 @@ async def start_handler(message: Message, state: FSMContext):
         await message.answer("You are not allowed to stop the bot.")
         return
     await message.answer("Bot stopped.")
-    await state.set_state(States.waiting_for_start)
-    await state.set_data({"state": "waiting_for_start"})
+    await state.clear()
 
 
 async def on_startup(dp: Dispatcher):
