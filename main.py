@@ -31,6 +31,7 @@ async def daily_check():
             await bot.send_message(settings.GROUP_CHAT_ID, f"{days_since_last_event} days without fall.")
 
 
+# ToDo need to add work with states (started/stopped)
 @dp.message(Command(commands=["start"]))
 async def start_handler(message: Message):
     if message.from_user.id not in settings.ALLOWED_USERS:
