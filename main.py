@@ -26,16 +26,16 @@ async def daily_check():
     if now.hour == check_time.hour and now.minute == check_time.minute:
         last_event_date = DBService().get_last_event_date()
         if not last_event_date:
-            await bot.send_message(settings.GROUP_CHAT_ID, "There have been no falls yet.")
+            await bot.send_message(group_chat_id, "There have been no falls yet.")
         else:
             last_event_date = datetime.datetime.strptime(last_event_date, "%Y-%m-%d %H:%M:%S.%f")
             days_since_last_event = (datetime.datetime.now() - last_event_date).days
-            await bot.send_message(settings.GROUP_CHAT_ID, f"{days_since_last_event} days without fall.")
+            await bot.send_message(group_chat_id, f"{days_since_last_event} days without fall.")
 
 
 @dp.message(Command(commands=["start"]), StateFilter(None))
 async def start_handler(message: Message, state: FSMContext):
-    if message.from_user.id not in settings.ALLOWED_USERS:
+    if message.from_user.id not in allowed_users:
         await message.answer("You are not allowed to start the bot.")
         return
     await message.answer("Bot started.")
@@ -48,14 +48,14 @@ async def start_handler(message: Message, state: FSMContext):
         is_enabled = await ServiceStatusService().check_server_online()
         if not is_enabled:
             DBService().insert_failure_event()
-            await bot.send_message(settings.GROUP_CHAT_ID, "Server is not responding.")
+            await bot.send_message(group_chat_id, "Server is not responding.")
         await daily_check()
         await asyncio.sleep(60)
 
 
 @dp.message(Command(commands=["stop"]), States.started)
 async def start_handler(message: Message, state: FSMContext):
-    if message.from_user.id not in settings.ALLOWED_USERS:
+    if message.from_user.id not in allowed_users:
         await message.answer("You are not allowed to stop the bot.")
         return
     await message.answer("Bot stopped.")
