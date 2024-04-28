@@ -1,12 +1,10 @@
 import datetime
 import sqlite3
-from dataclasses import dataclass
 from sqlite3 import Connection, Cursor
 
 from config import settings
 
 
-@dataclass
 class DBService:
     conn: Connection
     cursor: Cursor
