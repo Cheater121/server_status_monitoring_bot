@@ -14,7 +14,7 @@ from statuses import States
 
 allowed_users = settings.ALLOWED_USERS
 group_chat_id = settings.GROUP_CHAT_ID
-check_time = datetime.time(22, 0)
+check_time = datetime.time(21, 0)
 
 
 bot = Bot(token=settings.API_TOKEN)
@@ -53,6 +53,18 @@ async def start_handler(message: Message, state: FSMContext):
         await asyncio.sleep(60)
 
 
+@dp.message(Command(commands=["status"]))
+async def start_handler(message: Message, state: FSMContext):
+    if message.from_user.id not in allowed_users:
+        await message.answer("You are not allowed to check status.")
+        return
+    data = await state.get_data()
+    if not data.get("state"):
+        await message.answer("Bot stopped.")
+    else:
+        await message.answer("Bot started.")
+
+
 @dp.message(Command(commands=["stop"]), States.started)
 async def start_handler(message: Message, state: FSMContext):
     if message.from_user.id not in allowed_users:
@@ -63,8 +75,11 @@ async def start_handler(message: Message, state: FSMContext):
 
 
 async def on_startup(dp: Dispatcher):
-    # ToDo maybe while true -> try/except for infinitive?
-    await dp.start_polling(bot)
+    while True:
+        try:
+            await dp.start_polling(bot)
+        except:
+            pass
 
 
 if __name__ == "__main__":
