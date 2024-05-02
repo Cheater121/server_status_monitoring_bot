@@ -62,3 +62,21 @@ RestartSec=3
 WantedBy=multi-user.target
 ```
 Fill it with your actual data and enjoy. 
+
+If you don't need to use the bot's capabilities, you can use `telegram_notifier.py` to send messages directly to your chat (you will not be able to stop receiving notifications from telegram chat, but the stability of sending notifications is higher, since aiogram may periodically lose connection to telegram, which is fraught with loss of messages). To create systemd service, you can use this code (create it same to bot):
+```
+[Unit]
+Description=Server Status Monitoring Notificator
+After=network.target
+
+[Service]
+User=your_user
+WorkingDirectory=/home/your_user/path/to/server_status_monitoring_bot
+Environment="PATH=/home/your_user/path/to/server_status_monitoring_bot/venv/bin:$PATH"
+ExecStart=/home/your_user/path/to/server_status_monitoring_bot/venv/bin/python telegram_notifier.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
+```
