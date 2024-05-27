@@ -9,6 +9,7 @@ from aiogram.types import Message
 
 from config import settings
 from db import DBService
+from loggers import logger
 from server_status_service import ServiceStatusService
 from statuses import States
 
@@ -78,8 +79,9 @@ async def on_startup(dp: Dispatcher):
     while True:
         try:
             await dp.start_polling(bot)
-        except:
-            pass
+        except Exception as e:
+            await bot.send_message(group_chat_id, "Bot crashed with an exception, check for status.")
+            logger.exception(f"Exception on running: \n{e}\n")
 
 
 if __name__ == "__main__":
